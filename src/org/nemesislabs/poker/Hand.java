@@ -9,37 +9,33 @@ import java.util.Map;
 
 public class Hand implements Comparable<Hand>{
 
-	private static final int MAX_NUM_CARDS = 5;	  
 	private Category category = Category.UNDEFINED_CATEGORY;
 
 	private List<List<Card>>categorizedHandList = new ArrayList<>();
 	private boolean isFlush = true;
 	private List<Card> cards = new ArrayList<>();
 
+	private List<Rank> rankList = new ArrayList<>();
+
 	private Map<HandAttributeKeys,Rank> highRankMap = new HashMap<>();
 
 	/**
 	 * Constructs a Hand instance from the list of cards.
-	 * @param cards
-	 *     - A valid list of Cards - size must == 5.
-	 * @throws Exception
-	 *     - If the number of cards is less 5;
 	 */
-	public Hand(final List<Card> cards) throws Exception{
+	public Hand() { }
 
-	  if(MAX_NUM_CARDS != cards.size() ) {
-		  throw new Exception("Invalid number of cards.");
-	  }
-      Collections.sort(cards, Card.CardComparator);
-      this.cards = cards;
-      init(this.cards);
+	public void add(Card card) {
+		cards.add(card);
 	}
 
     /**
      * Builds the categorized hand list and determines flush flag.
      * @param cards
      */
-	private void init(List<Card> cards){
+	public void init(List<Card> cards) {
+
+		Collections.sort(cards, Card.CardComparator);
+
 		Suit suit = null;
 		for (Card card : cards){
 
@@ -67,15 +63,16 @@ public class Hand implements Comparable<Hand>{
 				categorizedHandList.add(newCardList);
 			}
 		}
-		determineCategory();
 	}
 	
-	private void determineCategory() {
+	public void determineCategory() {
 
         final int STRAIGHT_AND_HIGH_CARD_LIST_SIZE = 5;
         final int ONE_PAIR_LIST_SIZE = 4;
         final int TWO_PAIR_AND_THREE_OF_A_KIND_LIST_SIZE = 3;
         final int FULL_HOUSE_AND_FOUR_OF_A_KIND_LIST_SIZE = 2;
+
+		init(cards);
 
 		switch (categorizedHandList.size()){
 			case STRAIGHT_AND_HIGH_CARD_LIST_SIZE:{
@@ -114,6 +111,7 @@ public class Hand implements Comparable<Hand>{
 				}
 
                 //Save the high card rank for hand comparison.
+				rankList.add(highRank);
                 highRankMap.put(HandAttributeKeys.HIGH_CARD_RANK, highRank);
 				break;
 			}
@@ -250,7 +248,6 @@ public class Hand implements Comparable<Hand>{
 	}
 
 	public static Comparator<Hand> PokerHandComparator = new Comparator<Hand>() {
-
         public int compare(Hand hand1, Hand hand2) {
             return hand1.compareTo(hand2);
         }
